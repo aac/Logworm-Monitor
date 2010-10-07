@@ -1,0 +1,7 @@
+collections:
+  - name: requests
+    singular: request
+    table: web_log
+    summary: ["%s %s - %s %s", request_method, request_path, response_status, profiling]
+    fields: [_request_id, request_method, request_path, input, response_status, profiling]
+    

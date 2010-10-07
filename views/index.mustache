@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Logworm Monitor</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/scripts/sprintf-0.6.js"></script>
+    <script type="text/javascript">
+      function get_request_id(request)
+      {
+        return request.find('_request_id').text();
+      }
+
+      function get_expiration_date(xml)
+      {
+        expiration = $(xml).find('expiration').text();
+        date = new Date(parseInt(expiration));
+        return date;
+      }
+
+      function get_timestamp(request)
+      {
+        return new Date(parseInt(request.find('_ts_utc').text())).toString();
+      }
+
+      function list_builder(container)
+      {
+        container.attr("class", "index-box");
+        var ol = $(document.createElement('ol'));
+        container.html(ol);
+        return function(request, extractor) {
+          var d = $(document.createElement('div'));
+          $(d).attr("class","inline-block");
+          $(d).attr("style","vertical-align: top;");
+          var a = $(document.createElement('a'));
+          a.attr("href", "/requests/" + get_request_id(request));
+          content = extractor(request);
+          content.push(get_timestamp(request));
+          a.html(content.join('<br />'));
+          var li = $(document.createElement('li'));
+          $(d).append(a);
+          $(li).append(d);
+          $(ol).append(li);
+        };
+      }
+
+      {{#collections}}
+      function refresh_{{name}}()
+      {
+        $("#{{name}}_latest").text("Updating...");
+        if (!(window.refresh_{{name}}_timer === undefined))
+        {
+          clearTimeout(refresh_{{name}}_timer);
+        }
+      
+        $.get("/{{name}}", function(xml){
+          var expiration = get_expiration_date(xml);
+	  var current = new Date();
+	  var time_to_wait = expiration - current;
+	  refresh_{{name}}_timer = setTimeout("refresh_{{name}}()", time_to_wait);
+
+	  var {{name}} = $(xml).find('{{name}}');
+          var format_string = $(xml).find("format_string");
+          var use_format_string = format_string.length > 0 && format_string.text().length > 0;
+	  if ({{name}}.children().size() > 0){
+	    $("#{{name}}_latest").text("Latest at " + get_timestamp($({{name}}.children()[0])));
+	    var builder = list_builder($("#{{name}}_content"));
+	    {{name}}.children().each(function(){
+              builder($(this), function(request){
+                var response = [];
+                if (use_format_string) {
+                  var output = eval(format_string.text());
+                  response.push(output);
+                }
+                else {
+                  {{#fields}}
+                    if ('{{to_s}}' != "_ts_utc") {
+                      var field = request.find('{{to_s}}');
+                      if (field.text().length)
+                        response.push(field.text());
+                    }
+                  {{/fields}}
+                }
+		return response;
+              });
+	    });
+          }
+	  else
+	  {
+	    $("#{{name}}_latest").text("");
+          }
+        });
+      }
+      {{/collections}}
+      function refresh_all()
+      {
+        {{#collections}}
+          refresh_{{name}}();
+        {{/collections}}
+      }
+      $(document).ready(function() {
+        refresh_all();
+        var link = $("#refresh");
+        link.click(function(e) {
+          e.preventDefault();
+          refresh_all();
+        });
+        $("a[id*='toggle_hide']").each(function() {
+          var id = $(this).attr("id");
+          $(this).click(function(e) {
+            e.preventDefault();
+            $(document).append(id);
+            $("#"+id.substring(12, id.length)+"_content").toggle();
+            if ($(this).text() == "Show")
+            {
+              $(this).text("Hide");
+            }
+            else {
+              $(this).text("Show");
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div><a href="" id="refresh">Refresh All</a></div>
+    {{#collections}}
+    <div class="container">
+      <h2 class="section-header inline-block">{{name}}</h2><span id="{{name}}_latest" class="latest"></span><span class="section-toggle"><a href="#" id="toggle_hide_{{name}}">Show</a></span>
+      <div id="{{name}}_content" style="display:none"></div>
+    </div>
+    {{/collections}}
+  </body>
+</html>

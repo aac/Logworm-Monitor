@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Logworm Request Details {{id}}</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/base.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("a[id*='toggle_hide']").each(function() {
+          var id = $(this).attr("id");
+          $(this).click(function(e) {
+            e.preventDefault();
+            $(document).append(id);
+            $("#"+id.substring(7, id.length)).toggle();
+            if ($(this).text() == 'Show')
+            {
+              $(this).text("Hide");
+            }
+            else {
+              $(this).text("Show");
+            }
+          });
+        });
+      });      
+    </script>
+  </head>
+  <body>
+    <div><a href="/"><< Back to index</a></div>
+    {{#sections}}
+      <div class="container">
+        <h3>{{name}}</h3>
+	{{{body}}}
+      </div>
+    {{/sections}}
+  </body>
+</html>
