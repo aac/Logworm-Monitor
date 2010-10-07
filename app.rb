@@ -21,12 +21,14 @@ def extend_fields fields
 end
 
 configure do
+  @title = configuration['app'] || 'Logworm Monitor'
   @collections = configuration['collections']
   @collections.each do |c|
     c['fields'] ||= []
     c['fields'] = extend_fields(c['fields'])
   end
   set :collections, @collections
+  set :title, @title
 end
 
 def tables
@@ -47,6 +49,7 @@ end
 get '/' do
   #render page *and* javascript
   @collections = options.collections
+  @title = options.title
   mustache :index
 end
 
@@ -59,6 +62,7 @@ get '/requests/:id' do |id|
   end
 
   @collections = options.collections
+  @title = options.title
   mustache :show_request
 end
 

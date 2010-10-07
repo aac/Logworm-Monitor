@@ -3,7 +3,7 @@ class Index < Mustache
     @collections
   end
 
-  def initialize
-    @collections = @collections
+  def title
+    @title
   end
 end

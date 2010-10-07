@@ -22,6 +22,10 @@ class ShowRequest < Mustache
     end
   end
   
+  def title
+    @title
+  end
+
   private
 
   def hash_to_template h

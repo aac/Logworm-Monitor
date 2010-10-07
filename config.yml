@@ -1,3 +1,4 @@
+app: "Logworm Monitor"
 collections:
   - name: requests
     singular: request
