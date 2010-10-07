@@ -16,6 +16,7 @@ def configuration
 end
 
 def extend_fields fields
+  return fields if fields.nil? or fields.empty?
   fields = [fields] unless fields.is_a? Array
   (fields + %w(_request_id _ts_utc)).compact.uniq
 end
@@ -25,7 +26,6 @@ configure do
   @collections = configuration['collections']
   @collections.each do |c|
     c['fields'] ||= []
-    c['fields'] = extend_fields(c['fields'])
   end
   set :collections, @collections
   set :title, @title
@@ -75,15 +75,25 @@ def build_format_string summary
   format_string << ");"
 end
 
+def hash_to_condition hash
+  "\"#{hash.keys.first}\":\"#{hash.values.first}\""
+end
+
 get "/*" do |collection_name|
   content_type 'text/xml', :charset => 'utf-8'
   
   collection = options.collections.find{|c| c['name'] == collection_name}
   return nil if collection.nil?
 
-  fields = collection['fields']
+  fields = extend_fields(collection['fields'])
+  conditions = collection['conditions'] ? collection['conditions'].map{|c| hash_to_condition(c)} : []
 
-  res = lw_query(collection['table'], :fields => fields, :conditions => collection['conditions'])
+  args = {}
+  args[:fields] = fields unless fields.nil? || fields.empty?
+  args[:conditions] = conditions unless conditions.nil? || conditions.empty?
+
+  res = lw_query(collection['table'], args)
+
   builder do |xml| 
     build_response(xml, Proc.new(){
                      xml.expiration get_expiration_in_ms(res['expires'])
@@ -91,7 +101,8 @@ get "/*" do |collection_name|
                      xml.tag!(collection_name) do
                        res['results'].each do |result|
                          xml.tag!(collection['singular']) do
-                           fields.each{|f| xml.tag!(f, result[f])}
+                           write_fields = (fields.nil? || fields.empty?) ? result.keys : fields
+                           write_fields.each{|f| xml.tag!(f, result[f])}
                          end
                        end
                      end

@@ -2,6 +2,7 @@ class ShowRequest < Mustache
   def sections
     @collections.map do |c|
       results = @results[c['table'].intern]
+      next if results.empty?
       result = results.first
       
       fields = []
