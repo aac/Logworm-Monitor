@@ -126,7 +126,9 @@
     <div><a href="" id="refresh">Refresh All</a></div>
     {{#collections}}
     <div class="container">
-      <h2 class="section-header inline-block">{{name}}</h2><span id="{{name}}_latest" class="latest"></span><span class="section-toggle"><a href="#" id="toggle_hide_{{name}}">Show</a></span>
+      <h2 class="section-header inline-block">{{name}}</h2>
+      <div id="{{name}}_latest" class="latest"></div>
+      <div class="section-toggle"><a href="#" id="toggle_hide_{{name}}">Show</a></div>
       <div id="{{name}}_content" style="display:none"></div>
     </div>
     {{/collections}}
