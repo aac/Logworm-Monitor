@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'sinatra'
-require "logworm_amqp"
-
+require 'builder'
 require 'mustache/sinatra'
 
 Sinatra::register Mustache::Sinatra
