@@ -10,6 +10,8 @@ set :mustache, {
   :templates => 'views/'
 }
 
+REQUEST_LIMIT = 10
+
 def configuration
   @config ||= YAML.load_file("config.yml")
 end
@@ -90,6 +92,7 @@ get "/*" do |collection_name|
   args = {}
   args[:fields] = fields unless fields.nil? || fields.empty?
   args[:conditions] = conditions unless conditions.nil? || conditions.empty?
+  args[:limit] = REQUEST_LIMIT
 
   res = lw_query(collection['table'], args)
 
