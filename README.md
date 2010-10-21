@@ -58,3 +58,8 @@ A collection is specified as follows:
 summary and conditions are optional.  
 
 summary is specified in the sprintf format.
+
+Requirements
+------------
+
+Logworm Monitor is built on Sinatra.  Templates are built with Mustache.  
