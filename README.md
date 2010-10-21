@@ -33,7 +33,7 @@ or set the LOGWORM_URL environment variable.  To run Logworm Monitor, run
    
    >> rackup -p 9292 config.ru
 
-and navigate to http://localhost:9292/
+and navigate to <http://localhost:9292/>
 
 Configuration
 -------------
@@ -47,13 +47,13 @@ Viewing an individual request shows each collection's log data
 for that request.
 
 A collection is specified as follows:
-  - name: get_requests
-    singular: get_request
-    table: web_log
-    summary: ["%s %s - %s %s", request_method, request_path, response_status, profiling]
-    fields: [_request_id, request_method, request_path, input, response_status, profiling]
-    conditions: 
-      - request_method: GET
+    - name: get_requests
+      singular: get_request
+      table: web_log
+      summary: ["%s %s - %s %s", request_method, request_path, response_status, profiling]
+      fields: [_request_id, request_method, request_path, input, response_status, profiling]
+      conditions: 
+        - request_method: GET
 
 summary and conditions are optional.  
 
